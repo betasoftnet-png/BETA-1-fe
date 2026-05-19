@@ -53,6 +53,16 @@ export default function App() {
     localStorage.setItem('bnx_user', JSON.stringify(activeUser));
   }, [activeUser]);
 
+  // SSO Login Callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      setIsLogged(true);
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    }
+  }, []);
+
   // 2. Ledger Fintech Balances
   const [ledgerBalance, setLedgerBalance] = useState(() => {
     const saved = localStorage.getItem('bnx_ledger_balance');
@@ -207,11 +217,11 @@ export default function App() {
             <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent max-w-7xl mx-auto" />
             {/* <Partners darkMode={darkMode} /> */}
             <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent max-w-7xl mx-auto" />
-            <Resources 
+            {/* <Resources 
               darkMode={darkMode} 
               activeUser={activeUser} 
               isLogged={isLogged} 
-            />
+            /> */}
           </>
         );
     }

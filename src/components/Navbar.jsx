@@ -21,6 +21,11 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
+  const handleLoginClick = () => {
+    const authUrl = window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://b2auth.com';
+    window.location.href = `${authUrl}/?client_id=beta_website&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+  };
+
   const productItems = [
     { name: 'BNXMail', desc: 'Group-driven secure mail client', icon: Mail, color: 'text-blue-500', link: '#/products' },
     { name: 'B2Auth', desc: 'Unified session & identity manager', icon: Shield, color: 'text-indigo-500', link: '#/products' },
@@ -174,13 +179,23 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
               </div>
             </div>
           ) : (
-            <a 
-              href="#/partners" 
-              className="relative inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-display font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-indigo-600/25"
-            >
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </a>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleLoginClick}
+                className={`font-display font-semibold text-sm transition-colors ${
+                  darkMode ? 'text-slate-300 hover:text-indigo-400' : 'text-slate-700 hover:text-indigo-600'
+                }`}
+              >
+                Sign In
+              </button>
+              <a 
+                href="#/partners" 
+                className="relative inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-display font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-indigo-600/25"
+              >
+                Get Started
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
           )}
         </div>
 
@@ -255,7 +270,20 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
           >
             Resources & Blog
           </a>
-          <div className="border-t border-slate-200 dark:border-slate-850 pt-4 mt-2">
+          <div className="border-t border-slate-200 dark:border-slate-850 pt-4 mt-2 flex flex-col gap-3">
+            {!isLogged && (
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  handleLoginClick();
+                }}
+                className={`w-full text-center inline-block py-3 rounded-xl font-display font-semibold text-sm border transition-all ${
+                  darkMode ? 'border-slate-800 text-slate-300 hover:bg-slate-900' : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Sign In with B2Auth
+              </button>
+            )}
             <a 
               href="#/partners" 
               className="w-full text-center inline-block py-3 rounded-xl font-display font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md"
