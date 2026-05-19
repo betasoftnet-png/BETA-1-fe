@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Sun, Moon, ChevronDown, Shield, Mail, CreditCard, Landmark, ArrowRight } from 'lucide-react';
-import logo from "../assets/beta.png"
+import logo from "../assets/image.png"
 
 export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, activeUser }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,14 +53,17 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
         {/* Brand Logo - Returns Home */}
-        <a href="#/" className="flex items-center gap-2 group">
+        <a href="#/" className="flex items-center gap-1 group">
           {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
             <span className="font-display font-extrabold text-xl tracking-tight"></span>
           </div> */}
-          <img src={logo} alt="Logo" className='h-16 w-16 rounded-xl '/>
+          <img src={logo} alt="Logo" className='h-12 w-20 rounded-xl '/>
           <div className="flex flex-col text-left">
-            <span className={`font-display font-black text-lg leading-tight tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Beta Softnet
+            <span 
+              className="text-lg leading-tight tracking-tight"
+              style={{ fontFamily: "'Saira Stencil One', sans-serif", color: '#004aad' }}
+            >
+              Beta
             </span>
             {/* <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500">
               Ecosystem
