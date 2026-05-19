@@ -22,7 +22,7 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   const handleLoginClick = () => {
-    const authUrl = window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://b2auth.com';
+    const authUrl = import.meta.env.VITE_AUTH_URL || 'https://b2auth.com';
     window.location.href = `${authUrl}/?client_id=beta_website&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
   };
 

@@ -285,7 +285,7 @@ export default function Ecosystem({ darkMode, isLogged, setIsLogged, activeUser,
                 )}
                 {isLogged ? (
                   <>
-                    <span className="text-emerald-500">[B2Auth] Success: Authorized user betasoftnet@bnxmail.com</span><br />
+                    <span className="text-emerald-500">[B2Auth] Success: Authorized user {activeUser.email}</span><br />
                     <span className="text-emerald-400">[SYNC] Synced mail accounts, personal wallets, and business portfolios.</span>
                   </>
                 ) : (

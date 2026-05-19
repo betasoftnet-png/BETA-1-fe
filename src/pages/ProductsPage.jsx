@@ -26,7 +26,7 @@ export default function ProductsPage({
     if (!newMailInput.trim()) return;
     setMailMessages([
       ...mailMessages,
-      { author: 'You (Developer)', time: 'Just now', body: newMailInput }
+      { author: isLogged ? activeUser.name : 'You (Guest)', time: 'Just now', body: newMailInput }
     ]);
     setNewMailInput('');
   };
@@ -277,9 +277,9 @@ export default function ProductsPage({
                         <h4 className="font-display font-bold text-sm text-emerald-500">Session Verified & Cascaded!</h4>
                         
                         <div className="max-w-xs mx-auto p-3 rounded-xl bg-slate-900 border border-slate-850 font-mono text-[9px] text-left text-slate-350">
-                          <div>**UUID:** id_sarahj_94a2b8e</div>
-                          <div>**Mailbox Status:** SYNCED (engineering-review)</div>
-                          <div>**FinTech Balance:** SYNCED ($14,250.75)</div>
+                          <div>**User:** {activeUser.name}</div>
+                          <div>**Email:** {activeUser.email}</div>
+                          <div>**Role:** {activeUser.role}</div>
                         </div>
                       </div>
                     )}

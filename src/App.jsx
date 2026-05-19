@@ -45,21 +45,86 @@ export default function App() {
     };
   });
 
+  const defaultUser = {
+    name: 'Beta Softnet',
+    email: 'betasoftnet@bnxmail.com',
+    role: 'Developer',
+    avatar: logo
+  };
+
   useEffect(() => {
     localStorage.setItem('bnx_logged', isLogged);
+    if (!isLogged) {
+      localStorage.removeItem('bnx_accessToken');
+      localStorage.removeItem('bnx_user');
+      setActiveUser(defaultUser);
+    }
   }, [isLogged]);
 
   useEffect(() => {
-    localStorage.setItem('bnx_user', JSON.stringify(activeUser));
-  }, [activeUser]);
+    if (isLogged) {
+      localStorage.setItem('bnx_user', JSON.stringify(activeUser));
+    }
+  }, [activeUser, isLogged]);
 
   // SSO Login Callback
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     if (code) {
-      setIsLogged(true);
+      // Clean URL immediately
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      
+      const exchangeCode = async () => {
+        try {
+          const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.bnxmail.com';
+          
+          // 1. Exchange code for token
+          const tokenRes = await fetch(`${API_BASE}/api/oauth/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              grantType: 'authorization_code',
+              code,
+              clientId: 'beta_website',
+              clientSecret: 'secure-beta-secret-2026'
+            })
+          });
+          
+          const tokenData = await tokenRes.json();
+          if (!tokenData.success) {
+            throw new Error(tokenData.message || 'Failed to exchange code');
+          }
+          
+          const accessToken = tokenData.data.access_token;
+          localStorage.setItem('bnx_accessToken', accessToken);
+          
+          // 2. Fetch user profile
+          const userRes = await fetch(`${API_BASE}/api/users/me`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          const userData = await userRes.json();
+          if (!userData.success) {
+            throw new Error(userData.message || 'Failed to fetch user profile');
+          }
+          
+          const user = userData.data;
+          setActiveUser({
+            name: user.fullName || user.username,
+            email: user.email,
+            role: user.accountType || 'User',
+            avatar: logo
+          });
+          setIsLogged(true);
+        } catch (err) {
+          console.error('SSO login error:', err);
+        }
+      };
+      
+      exchangeCode();
     }
   }, []);
 
