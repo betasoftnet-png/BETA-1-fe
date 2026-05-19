@@ -8,6 +8,7 @@ import WhyChooseUs from './components/WhyChooseUs';
 import Partners from './components/Partners';
 import Resources from './components/Resources';
 import Footer from './components/Footer';
+import EnterpriseContactModal from './components/EnterpriseContactModal';
 
 // Import newly created dedicated pages
 import AboutPage from './pages/AboutPage';
@@ -26,6 +27,7 @@ export default function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatSubmitted, setChatSubmitted] = useState(false);
   const [fadeTrigger, setFadeTrigger] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
   // --- PERSISTENT GLOBAL STATES ---
   
@@ -318,7 +320,14 @@ export default function App() {
       </main>
 
       {/* 4. Footer */}
-      <Footer darkMode={darkMode} />
+      <Footer darkMode={darkMode} onContactEnterprise={() => setContactModalOpen(true)} />
+
+      {/* Contact Enterprise Modal */}
+      <EnterpriseContactModal 
+        isOpen={contactModalOpen} 
+        onClose={() => setContactModalOpen(false)} 
+        darkMode={darkMode} 
+      />
 
       {/* 5. Floating Interactive widgets (Scroll To Top & Live Chat) */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">

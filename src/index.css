@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html{
+  scrollbar-width: none;
+}
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
@@ -83,6 +87,7 @@
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+
 }
 ::-webkit-scrollbar-track {
   background: transparent;

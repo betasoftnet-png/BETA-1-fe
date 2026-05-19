@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Shield, CreditCard, Landmark, ArrowRight, CheckCircle, MessageSquare } from 'lucide-react';
 
-export default function Footer({ darkMode }) {
+export default function Footer({ darkMode, onContactEnterprise }) {
   const [subscribed, setSubscribed] = useState(false);
   const [emailValue, setEmailValue] = useState('');
 
@@ -79,23 +79,23 @@ export default function Footer({ darkMode }) {
 
           {/* Action CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 w-full sm:w-auto">
-            <a 
+            {/* <a 
               href="#/partners"
               className="w-full sm:w-auto text-center px-7 py-3.5 rounded-xl font-display font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-xl shadow-indigo-600/20"
             >
               Explore Platform SDK
-            </a>
-            <a 
-              href="mailto:contact@betasoftnet.com"
-              className={`w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-display font-bold text-sm border hover:scale-[1.03] active:scale-[0.98] transition-all ${
+            </a> */}
+            <button 
+              onClick={onContactEnterprise}
+              className={`w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-display font-bold text-sm border hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer ${
                 darkMode 
                   ? 'border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700 hover:text-white' 
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50'
+                  : 'border-slate-200 bg-slate-350 text-black hover:border-slate-350 hover:bg-indigo-500 hover:text-white'
               }`}
             >
-              <MessageSquare className="w-4 h-4 text-indigo-500" />
+              <MessageSquare className="w-4 h-4 hover:text-white" />
               Contact Enterprise
-            </a>
+            </button>
           </div>
         </div>
       </div>

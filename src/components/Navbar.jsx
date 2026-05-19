@@ -60,8 +60,8 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
           <img src={logo} alt="Logo" className='h-12 w-20 rounded-xl '/>
           <div className="flex flex-col text-left">
             <span 
-              className="text-lg leading-tight tracking-tight"
-              style={{ fontFamily: "'Saira Stencil One', sans-serif", color: '#004aad' }}
+              className="leading-tight tracking-tight"
+              style={{ fontFamily: "'Saira Stencil One', sans-serif", color: '#004aad', fontSize:'25px'}}
             >
               Beta
             </span>
