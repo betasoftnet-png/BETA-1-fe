@@ -235,7 +235,7 @@ export default function App() {
       case '#/about':
         return <AboutPage darkMode={darkMode} />;
       case '#/careers':
-        return <CareersPage darkMode={darkMode} />;
+        return <CareersPage darkMode={darkMode} isLogged={isLogged} activeUser={activeUser} />;
       case '#/admin':
         return <AdminPage darkMode={darkMode} />;
       case '#/partners':

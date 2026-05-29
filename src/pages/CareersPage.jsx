@@ -13,7 +13,8 @@ import {
   Loader2, 
   Building, 
   ChevronRight,
-  Upload
+  Upload,
+  Lock
 } from 'lucide-react';
 
 const LOCAL_FALLBACK_JOBS = [
@@ -124,7 +125,7 @@ const LOCAL_FALLBACK_JOBS = [
   }
 ];
 
-export default function CareersPage({ darkMode }) {
+export default function CareersPage({ darkMode, isLogged, activeUser }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -138,12 +139,12 @@ export default function CareersPage({ darkMode }) {
   // Modal and Application States
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyMode, setApplyMode] = useState(false);
+  
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    resumeUrl: '',
     coverLetter: ''
   });
+  const [resumeFile, setResumeFile] = useState(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -162,7 +163,6 @@ export default function CareersPage({ darkMode }) {
           throw new Error(`API returned error code ${response.status}`);
         }
         const data = await response.json();
-        // Assuming response structure has a jobs list or data payload
         const jobsList = data.jobs || data.data || data;
         if (Array.isArray(jobsList)) {
           setJobs(jobsList);
@@ -197,37 +197,48 @@ export default function CareersPage({ darkMode }) {
 
   const handleApplySubmit = async (e) => {
     e.preventDefault();
+    if (!isLogged) return;
+
+    if (!resumeFile) {
+      setSubmitError('Please upload your resume file.');
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
     setIsSimulatedSubmit(false);
 
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('jobId', selectedJob.id);
+      formDataToSend.append('fullName', activeUser.name);
+      formDataToSend.append('email', activeUser.email);
+      formDataToSend.append('coverLetter', formData.coverLetter);
+      formDataToSend.append('resume', resumeFile);
+
       const response = await fetch(`${API_BASE}/api/jobs/apply`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobId: selectedJob.id,
-          jobTitle: selectedJob.title,
-          ...formData
-        })
+        body: formDataToSend
       });
 
-      if (!response.ok) {
-        throw new Error(`Server returned error status ${response.status}`);
-      }
-      
       const resData = await response.json();
-      if (resData.success === false) {
+      if (!response.ok || resData.success === false) {
         throw new Error(resData.message || 'Failed to submit application.');
       }
       setSubmitSuccess(true);
     } catch (err) {
-      console.warn('Failed submitting to API endpoint, simulating client-side submission success:', err);
-      // Wait for a realistic network response
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setIsSimulatedSubmit(true);
-      setSubmitSuccess(true);
+      console.warn('Backend apply submission failed:', err);
+      
+      if (isUsingFallback) {
+        // In fallback sandbox mode, simulate submit
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        setIsSimulatedSubmit(true);
+        setSubmitSuccess(true);
+      } else {
+        // Show specific error from backend (like already applied)
+        setSubmitError(err.message || 'Connection failure. Could not submit application.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -235,11 +246,9 @@ export default function CareersPage({ darkMode }) {
 
   const resetApplicationForm = () => {
     setFormData({
-      fullName: '',
-      email: '',
-      resumeUrl: '',
       coverLetter: ''
     });
+    setResumeFile(null);
     setSubmitSuccess(false);
     setSubmitError(null);
     setApplyMode(false);
@@ -523,7 +532,7 @@ export default function CareersPage({ darkMode }) {
                     <h4 className={`font-display font-black text-base mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       About the Role
                     </h4>
-                    <p className={`text-sm font-light leading-relaxed ${darkMode ? 'text-slate-350' : 'text-slate-650'}`}>
+                    <p className={`text-sm font-light leading-relaxed ${darkMode ? 'text-slate-350' : 'text-slate-655'}`}>
                       {selectedJob.description}
                     </p>
                   </div>
@@ -537,7 +546,7 @@ export default function CareersPage({ darkMode }) {
                         {selectedJob.responsibilities.map((resp, idx) => (
                           <li key={idx} className="flex items-start gap-2 text-sm font-light leading-relaxed">
                             <ChevronRight className="w-4 h-4 text-indigo-500 mt-1 flex-shrink-0" />
-                            <span className={darkMode ? 'text-slate-350' : 'text-slate-650'}>{resp}</span>
+                            <span className={darkMode ? 'text-slate-350' : 'text-slate-655'}>{resp}</span>
                           </li>
                         ))}
                       </ul>
@@ -553,7 +562,7 @@ export default function CareersPage({ darkMode }) {
                         {selectedJob.requirements.map((req, idx) => (
                           <li key={idx} className="flex items-start gap-2 text-sm font-light leading-relaxed">
                             <CheckCircle2 className="w-4 h-4 text-indigo-500 mt-1 flex-shrink-0" />
-                            <span className={darkMode ? 'text-slate-350' : 'text-slate-650'}>{req}</span>
+                            <span className={darkMode ? 'text-slate-350' : 'text-slate-655'}>{req}</span>
                           </li>
                         ))}
                       </ul>
@@ -562,10 +571,34 @@ export default function CareersPage({ darkMode }) {
 
                 </div>
               ) : (
-                /* Interactive application form */
+                /* Interactive application details / Auth guards check */
                 <div className="space-y-6 text-left">
                   
-                  {submitSuccess ? (
+                  {!isLogged ? (
+                    /* Guard: Show B2Auth Login Prompts */
+                    <div className="text-center py-12 space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 mx-auto animate-float">
+                        <Building className="w-8 h-8" />
+                      </div>
+                      <h3 className={`font-display font-black text-xl ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                        Single Sign-On Required
+                      </h3>
+                      <p className={`text-sm font-light max-w-sm mx-auto leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                        You must be signed in with your Beta Softnet B2Auth credentials to submit job applications.
+                      </p>
+                      
+                      <button 
+                        onClick={() => {
+                          const authUrl = import.meta.env.VITE_AUTH_URL || 'https://b2auth.com';
+                          window.location.href = `${authUrl}/?client_id=beta_website&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                        }}
+                        className="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md cursor-pointer transition-all hover:scale-105"
+                      >
+                        Sign In with B2Auth
+                      </button>
+                    </div>
+                  ) : submitSuccess ? (
+                    /* Success screen details */
                     <div className="text-center py-12 space-y-4">
                       <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mx-auto animate-float">
                         <CheckCircle2 className="w-10 h-10" />
@@ -574,7 +607,7 @@ export default function CareersPage({ darkMode }) {
                         Application Received!
                       </h3>
                       <p className={`text-sm font-light max-w-sm mx-auto leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                        Thank you for applying to the <strong>{selectedJob.title}</strong> role. Our engineering and culture directors will review your details.
+                        Thank you for applying to the <strong>{selectedJob.title}</strong> role. A confirmation receipt has been sent to your email at <strong>{activeUser.email}</strong>.
                       </p>
                       
                       {isSimulatedSubmit && (
@@ -594,6 +627,7 @@ export default function CareersPage({ darkMode }) {
                       </button>
                     </div>
                   ) : (
+                    /* Logged in Application Profile Form */
                     <form onSubmit={handleApplySubmit} className="space-y-4">
                       <h3 className={`font-display font-black text-lg border-b dark:border-slate-800 pb-2 mb-4 ${
                         darkMode ? 'text-white' : 'text-slate-900'
@@ -608,51 +642,73 @@ export default function CareersPage({ darkMode }) {
                         </div>
                       )}
 
-                      {/* Name input */}
+                      {/* Name input (Read-only pulled from activeUser) */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-slate-450 dark:text-slate-400">Full Name *</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={formData.fullName}
-                          onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                          placeholder="Jane Doe"
-                          className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/25 ${
-                            darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                          }`}
-                        />
-                      </div>
-
-                      {/* Email input */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-slate-455 dark:text-slate-400">Email Address *</label>
-                        <input 
-                          type="email" 
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({...formData, email: e.target.value})}
-                          placeholder="jane.doe@example.com"
-                          className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/25 ${
-                            darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                          }`}
-                        />
-                      </div>
-
-                      {/* Resume link */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-slate-455 dark:text-slate-400">Resume Link / Portfolio Link *</label>
+                        <label className="text-xs font-semibold text-slate-450 dark:text-slate-400 flex items-center gap-1">
+                          Full Name
+                          <Lock className="w-3 h-3 text-slate-400" />
+                        </label>
                         <div className="relative">
-                          <Upload className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                           <input 
-                            type="url" 
-                            required
-                            value={formData.resumeUrl}
-                            onChange={(e) => setFormData({...formData, resumeUrl: e.target.value})}
-                            placeholder="https://myresume.com/jane-doe-resume.pdf"
-                            className={`w-full text-sm pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/25 ${
-                              darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                            type="text" 
+                            readOnly
+                            value={activeUser.name}
+                            className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:outline-none opacity-80 cursor-not-allowed ${
+                              darkMode ? 'bg-slate-950 border-slate-800 text-slate-350' : 'bg-slate-100 border-slate-200 text-slate-500'
                             }`}
                           />
+                        </div>
+                      </div>
+
+                      {/* Email input (Read-only pulled from activeUser) */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-slate-455 dark:text-slate-400 flex items-center gap-1">
+                          Email Address
+                          <Lock className="w-3 h-3 text-slate-400" />
+                        </label>
+                        <div className="relative">
+                          <input 
+                            type="email" 
+                            readOnly
+                            value={activeUser.email}
+                            className={`w-full text-sm px-3.5 py-2.5 rounded-xl border focus:outline-none opacity-80 cursor-not-allowed ${
+                              darkMode ? 'bg-slate-950 border-slate-800 text-slate-350' : 'bg-slate-100 border-slate-200 text-slate-500'
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Resume File Upload Input */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-slate-455 dark:text-slate-400">Resume File (PDF, DOCX) *</label>
+                        <div className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                          resumeFile 
+                            ? 'border-indigo-500 bg-indigo-500/5' 
+                            : darkMode ? 'border-slate-800 bg-slate-950/20 hover:border-slate-700' : 'border-slate-300 bg-slate-50 hover:border-slate-400'
+                        }`}>
+                          <input 
+                            type="file" 
+                            required
+                            accept=".pdf,.docx,.doc"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setResumeFile(e.target.files[0]);
+                              }
+                            }}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                          />
+                          <Upload className="w-8 h-8 text-indigo-500 mx-auto mb-2" />
+                          {resumeFile ? (
+                            <div>
+                              <span className="text-xs font-bold block text-slate-700 dark:text-slate-350">{resumeFile.name}</span>
+                              <span className="text-[10px] text-slate-400">{(resumeFile.size / (1024 * 1024)).toFixed(2)} MB - Click or drag to replace</span>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className="text-xs font-semibold block text-slate-400">Click or drag resume file to upload</span>
+                              <span className="text-[10px] text-slate-500">Supports PDF, DOC, DOCX up to 10MB</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 

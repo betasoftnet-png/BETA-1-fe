@@ -372,7 +372,7 @@ export default function AdminPage({ darkMode }) {
                           Resume Profile
                         </span>
                         <a 
-                          href={app.resumeUrl} 
+                          href={`${BACKEND_URL}${app.resumeUrl}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-500/20 bg-indigo-500/5 text-indigo-500 hover:bg-indigo-500/10 transition-colors text-xs font-semibold cursor-pointer"
