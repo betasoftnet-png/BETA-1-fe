@@ -25,6 +25,7 @@ export default function Footer({ darkMode, onContactEnterprise }) {
       { name: 'Who We Are', href: '#/about' },
       { name: 'Partner Program', href: '#/partners' },
       { name: 'Engineering Core', href: '#/about' },
+      { name: 'Careers', href: '#/careers' },
       { name: 'Platform SLA', href: '#/' }
     ],
     resources: [

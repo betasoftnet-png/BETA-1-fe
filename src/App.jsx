@@ -15,6 +15,8 @@ import AboutPage from './pages/AboutPage';
 import PartnersPage from './pages/PartnersPage';
 import ResourcesPage from './pages/ResourcesPage';
 import ProductsPage from './pages/ProductsPage';
+import CareersPage from './pages/CareersPage';
+import AdminPage from './pages/AdminPage';
 
 import logo from './assets/beta.png';
 import { ArrowUp, MessageSquare, X, Send } from 'lucide-react';
@@ -232,6 +234,10 @@ export default function App() {
     switch (currentRoute) {
       case '#/about':
         return <AboutPage darkMode={darkMode} />;
+      case '#/careers':
+        return <CareersPage darkMode={darkMode} />;
+      case '#/admin':
+        return <AdminPage darkMode={darkMode} />;
       case '#/partners':
         return (
           <PartnersPage 

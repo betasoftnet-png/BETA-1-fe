@@ -63,7 +63,7 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
               className="leading-tight tracking-tight"
               style={{ fontFamily: "'Saira Stencil One', sans-serif", color: '#004aad', fontSize:'25px'}}
             >
-              Beta
+              BETA
             </span>
             {/* <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500">
               Ecosystem
@@ -144,6 +144,16 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
           <a href="#/resources" className={getLinkClass('#/resources')}>
             Resources
             {currentRoute === '#/resources' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500" />}
+          </a>
+
+          <a href="#/careers" className={getLinkClass('#/careers')}>
+            Careers
+            {currentRoute === '#/careers' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500" />}
+          </a>
+
+          <a href="#/admin" className={getLinkClass('#/admin')}>
+            Admin
+            {currentRoute === '#/admin' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500" />}
           </a>
         </div>
 
@@ -272,6 +282,20 @@ export default function Navbar({ darkMode, setDarkMode, currentRoute, isLogged, 
             onClick={() => setIsOpen(false)}
           >
             Resources & Blog
+          </a>
+          <a 
+            href="#/careers" 
+            className="font-display font-bold text-sm hover:text-indigo-500"
+            onClick={() => setIsOpen(false)}
+          >
+            Careers
+          </a>
+          <a 
+            href="#/admin" 
+            className="font-display font-bold text-sm hover:text-indigo-500"
+            onClick={() => setIsOpen(false)}
+          >
+            Admin
           </a>
           <div className="border-t border-slate-200 dark:border-slate-850 pt-4 mt-2 flex flex-col gap-3">
             {!isLogged && (
